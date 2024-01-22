@@ -10,6 +10,8 @@ from mediapipe.tasks.python import vision
 
 from utils import visualize
 
+from sendNotif import loop_send_message
+
 
 def run(model: str, camera_id: int, width: int, height: int, category_allowlist: list) -> None:
   """Continuously run inference on images acquired from the camera.
@@ -107,6 +109,7 @@ def run(model: str, camera_id: int, width: int, height: int, category_allowlist:
 
             if(notif_counter == 300):
                 print("===============SEND NOTIFICATION=============== There's ", max_detected, " person coming")
+                loop_send_message("Smart Door Lock", f"There's {max_detected} person coming")
             
             if(notif_counter > sys.maxsize):
                 notif_counter = 0
