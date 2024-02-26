@@ -14,6 +14,7 @@ from sendNotif import loop_send_message
 
 from gpiozero import LED, Buzzer, Button, OutputDevice
 from signal import pause
+import threading
 
 def run_lock():
     cred = credentials.Certificate("key.json")
@@ -220,8 +221,12 @@ def main():
       default=['person'])
   args = parser.parse_args()
 
-  run(args.model, int(args.cameraId), args.frameWidth, args.frameHeight, args.categoryAllowList)
+  detect_thread = threading.Thread(target=run, args=(args.model, int(args.cameraId), args.frameWidth, args.frameHeight, args.categoryAllowList))
+  detect_thread.start()
+
+#   run(args.model, int(args.cameraId), args.frameWidth, args.frameHeight, args.categoryAllowList)
   run_lock()
+  detect_thread.join()
 
 if __name__ == '__main__':
   main()
