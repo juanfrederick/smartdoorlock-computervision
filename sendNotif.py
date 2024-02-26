@@ -11,7 +11,7 @@ from requests.exceptions import ConnectionError, HTTPError
 import firebase_admin
 from firebase_admin import credentials, db
 
-cred = credentials.Certificate("./key.json")
+cred = credentials.Certificate("key.json")
 firebase_admin.initialize_app(cred, {'databaseURL': 'https://smart-door-lock-58-default-rtdb.asia-southeast1.firebasedatabase.app'})
 ref = db.reference()
 
