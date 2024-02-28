@@ -5,7 +5,9 @@ from firebase_admin import db
 from gpiozero import LED, Buzzer, Button, OutputDevice
 from signal import pause
 
-cred = credentials.Certificate("key.json")
+from detect import main
+
+cred = credentials.Certificate("dbkey.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://smart-door-lock-58-default-rtdb.asia-southeast1.firebasedatabase.app/'
 })
@@ -55,6 +57,8 @@ button.when_pressed = button_pressed
 
 # Menetapkan fungsi sebagai pendengar perubahan data
 data_ref.listen(on_data_change)
+
+main()
 
 # Jaga program tetap berjalan
 pause()

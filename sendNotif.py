@@ -11,11 +11,11 @@ from requests.exceptions import ConnectionError, HTTPError
 import firebase_admin
 from firebase_admin import credentials, db
 
-cred = credentials.Certificate("key.json")
-firebase_admin.initialize_app(cred, {'databaseURL': 'https://smart-door-lock-58-default-rtdb.asia-southeast1.firebasedatabase.app'})
-ref = db.reference()
+# cred = credentials.Certificate("dbkey.json")
+# firebase_admin.initialize_app(cred, {'databaseURL': 'https://smart-door-lock-58-default-rtdb.asia-southeast1.firebasedatabase.app'})
 
 def loop_send_message(base_title, base_message):
+    ref = db.reference()
     user_data = ref.child('lock').child('-NirdTJoPlvLn407NKev').get()
     connected_user = user_data['connectedUser']
 
