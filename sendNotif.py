@@ -17,7 +17,11 @@ from firebase_admin import credentials, db
 def loop_send_message(base_title, base_message):
     ref = db.reference()
     user_data = ref.child('lock').child('-NirdTJoPlvLn407NKev').get()
-    connected_user = user_data['connectedUser']
+    connected_user = []
+    if 'connectedUser' in user_data:
+        connected_user = user_data['connectedUser']
+    else:
+        connected_user = None
 
     # Optionally providing an access token within a session if you have enabled push security
     session = requests.Session()

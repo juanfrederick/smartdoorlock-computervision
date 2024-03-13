@@ -16,10 +16,10 @@ target_id = "-NirdTJoPlvLn407NKev"
 
 data_ref = db.reference('lock/' + target_id)
 
-led_pin = 27  # Ganti dengan nomor pin yang sesuai
-buzzer_pin = 17  # Ganti dengan nomor pin yang sesuai
-button_pin = 22  # Ganti dengan nomor pin yang sesuai
-relay_pin = 23  # Ganti dengan nomor pin yang sesuai
+led_pin = 27 
+buzzer_pin = 17 
+button_pin = 22 
+relay_pin = 23 
 
 led = LED(led_pin)
 buzzer = Buzzer(buzzer_pin)
@@ -27,13 +27,13 @@ button = Button(button_pin)
 relay = OutputDevice(relay_pin, active_high=True, initial_value=False)
 
 def button_pressed():
-    led.toggle()  # Mengubah status LED (hidup/mati)
+    led.toggle() 
     if led.is_lit:
-        buzzer.on()  # Hidupkan buzzer jika LED menyala
+        buzzer.on()  
         relay.on()
         print("ON")
     else:
-        buzzer.off()  # Matikan buzzer jika LED mati
+        buzzer.off()  
         relay.off()
         print("OFF")
 
@@ -52,13 +52,10 @@ def on_data_change(event):
         relay.off()
         led.off()
 
-# Menghubungkan fungsi button_pressed() dengan peristiwa saat tombol ditekan
 button.when_pressed = button_pressed
 
-# Menetapkan fungsi sebagai pendengar perubahan data
 data_ref.listen(on_data_change)
 
 main()
 
-# Jaga program tetap berjalan
 pause()
