@@ -4,6 +4,10 @@ import time
 
 import cv2
 import mediapipe as mp
+import numpy as np
+import base64
+
+from datetime import datetime
 
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -12,6 +16,13 @@ from utils import visualize
 
 from sendNotif import loop_send_message
 
+import firebase_admin
+from firebase_admin import credentials, db
+
+# cred = credentials.Certificate("dbkey.json")
+# firebase_admin.initialize_app(cred, {
+#     'databaseURL': 'https://smart-door-lock-58-default-rtdb.asia-southeast1.firebasedatabase.app/'
+# })
 
 def run(model: str, camera_id: int, width: int, height: int, category_allowlist: list) -> None:
   """Continuously run inference on images acquired from the camera.
@@ -22,6 +33,7 @@ def run(model: str, camera_id: int, width: int, height: int, category_allowlist:
     width: The width of the frame captured from the camera.
     height: The height of the frame captured from the camera.
   """
+  ref = db.reference('/detectHistory')
 
   # Variables to calculate FPS
   counter, fps = 0, 0
@@ -81,6 +93,7 @@ def run(model: str, camera_id: int, width: int, height: int, category_allowlist:
     detector.detect_async(mp_image, counter)
     current_frame = mp_image.numpy_view()
     current_frame = cv2.cvtColor(current_frame, cv2.COLOR_RGB2BGR)
+    current_frame_copy = cv2.cvtColor(mp_image.numpy_view(), cv2.COLOR_RGB2BGR)
 
     # Calculate the FPS
     if counter % fps_avg_frame_count == 0:
@@ -107,8 +120,45 @@ def run(model: str, camera_id: int, width: int, height: int, category_allowlist:
             notif_counter += 1
             print(num_detections, " detected. max human detected = ", max_detected, ". notif counter = ", notif_counter)
 
-            if(notif_counter == 300):
+            if(notif_counter == 50):
                 print("===============SEND NOTIFICATION=============== There's ", max_detected, " person coming")
+
+                current_time = datetime.utcnow().isoformat()
+                array_of_crop = []
+
+                image_for_crop = np.copy(current_frame)
+                image_for_full = np.copy(current_frame_copy)
+
+                full_image = image_for_full
+
+                full_width = int(full_image.shape[1] * 30 / 100)
+                full_height = int(full_image.shape[0] * 30 / 100)
+
+                full_resized = cv2.resize(full_image, (full_width, full_height))
+                
+                full_bytes = cv2.imencode('.jpg', full_resized)[1].tobytes()
+                full_encoded = base64.b64encode(full_bytes).decode('utf-8')
+
+                for obj in detections:
+                    x = obj.bounding_box.origin_x
+                    y = obj.bounding_box.origin_y
+                    w = obj.bounding_box.width
+                    h = obj.bounding_box.height
+                    single_crop = image_for_crop[y:y+h, x:x+w]
+
+                    crop_width = int(single_crop.shape[1] * 30 / 100)
+                    crop_height = int(single_crop.shape[0] * 30 / 100)
+
+                    resized_image = cv2.resize(single_crop, (crop_width, crop_height))
+
+                    image_bytes = cv2.imencode('.jpg', resized_image)[1].tobytes()
+                    encoded_image = base64.b64encode(image_bytes).decode('utf-8')
+
+                    array_of_crop.append(encoded_image)
+
+                data = {"date": current_time, "fullImage": full_encoded, "cropImage": array_of_crop, "lockId": "-NirdTJoPlvLn407NKev"}
+
+                new_data_ref = ref.push(data) 
                 loop_send_message("Smart Door Lock", f"There's {max_detected} person coming")
             
             if(notif_counter > sys.maxsize):
