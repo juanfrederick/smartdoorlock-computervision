@@ -83,11 +83,12 @@ def loop_send_message(base_title, base_message):
                 })
             raise self.retry(exc=exc)
 
-    for element in connected_user:
-        if element is not None and 'phoneToken' in element:
-            phoneToken = element['phoneToken']
-            print("Send Message To: " + phoneToken)
-            send_push_message(phoneToken, base_title, base_message)
-            print(phoneToken + " - Message Sent")
-        else:
-            print("Skipping element:", element)
+    if(connected_user is not None):
+        for element in connected_user:
+            if element is not None and 'phoneToken' in element:
+                phoneToken = element['phoneToken']
+                print("Send Message To: " + phoneToken)
+                send_push_message(phoneToken, base_title, base_message)
+                print(phoneToken + " - Message Sent")
+            else:
+                print("Skipping element:", element)
