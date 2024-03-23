@@ -120,7 +120,7 @@ def run(model: str, camera_id: int, width: int, height: int, category_allowlist:
             notif_counter += 1
             print(num_detections, " detected. max human detected = ", max_detected, ". notif counter = ", notif_counter)
 
-            if(notif_counter == 50):
+            if(notif_counter == 30):
                 print("===============SEND NOTIFICATION=============== There's ", max_detected, " person coming")
 
                 current_time = datetime.utcnow().isoformat()
@@ -200,13 +200,13 @@ def main():
       help='Width of frame to capture from camera.',
       required=False,
       type=int,
-      default=1280)
+      default=320)
   parser.add_argument(
       '--frameHeight',
       help='Height of frame to capture from camera.',
       required=False,
       type=int,
-      default=720)
+      default=240)
   parser.add_argument(
       '--categoryAllowList',
       help='Comma-separated list of categories to allow (e.g., person,car).',
